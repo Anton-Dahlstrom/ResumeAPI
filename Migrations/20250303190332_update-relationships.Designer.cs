@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResumeAPI.Data;
 
@@ -11,9 +12,11 @@ using ResumeAPI.Data;
 namespace ResumeAPI.Migrations
 {
     [DbContext(typeof(ResumeDBContext))]
-    partial class ResumeDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250303190332_update-relationships")]
+    partial class updaterelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
