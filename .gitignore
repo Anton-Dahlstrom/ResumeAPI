@@ -3,6 +3,8 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+todo.md
+
 # Sensitive appsetitings
 appsettings.Development.json
 
