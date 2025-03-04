@@ -22,6 +22,8 @@ namespace ResumeAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            builder.Services.AddScoped<PersonService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -35,60 +37,7 @@ namespace ResumeAPI
 
             app.UseAuthorization();
 
-
-            // Person
-            app.MapGet("/person", async (ResumeDBContext context) =>
-            {
-                var persons = await context.Persons.ToListAsync();
-                return Results.Ok(persons);
-            });
-
-            app.MapGet("/person/{id}", async (ResumeDBContext context, int id) =>
-            {
-                var existingPerson = await context.Persons.FirstOrDefaultAsync(p => p.ID == id);
-                if (existingPerson == null)
-                {
-                    return Results.NotFound("Person not found");
-                }
-                return Results.Ok(existingPerson);
-            });
-
-            app.MapPost("/person", async (ResumeDBContext context, Person person) =>
-            {
-                context.Persons.Add(person);
-                await context.SaveChangesAsync();
-                return Results.Ok(person);
-            });
-
-            app.MapPut("/person/{id}", async (ResumeDBContext context, int id, Person person) =>
-            {
-                var existingPerson = await context.Persons.FirstOrDefaultAsync(p => p.ID == id);
-                if (existingPerson == null)
-                {
-                    return Results.NotFound("Person not found");
-                }
-
-                existingPerson.Name = person.Name;
-                existingPerson.Description = person.Description;
-                existingPerson.Phone = person.Phone;
-                existingPerson.Email = person.Email;
-                await context.SaveChangesAsync();
-
-                return Results.Ok(person);
-            });
-
-            app.MapDelete("/person/{id}", async (ResumeDBContext context, int id) =>
-            {
-                var existingPerson = await context.Persons.FirstOrDefaultAsync(p => p.ID == id);
-                if (existingPerson == null)
-                {
-                    return Results.NotFound("Person not found");
-                }
-                context.Remove(existingPerson);
-                await context.SaveChangesAsync();
-                return Results.Ok();
-            });
-
+            PersonEndpoints.RegisterEndpoints(app);
 
             // Education
             app.MapGet("/education", async (ResumeDBContext context) =>
