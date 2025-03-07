@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ResumeAPI.DTO
 {
-    public class EducationGetDTO
+    public class EducationDTO
     {
         [MaxLength(256)]
         public string School { get; set; }
