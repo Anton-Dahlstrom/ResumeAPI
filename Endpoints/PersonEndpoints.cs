@@ -7,10 +7,22 @@ namespace ResumeAPI.Models
     {
         public static void RegisterEndpoints(WebApplication app) 
         {
-            app.MapGet("/person", async (PersonService personService) =>
+            app.MapGet("/person", async (PersonService personService, int page = 1) =>
             {
-                var persons = await personService.GetAllPersons();
-                return Results.Ok(persons);
+                try
+                {
+                    page = Math.Max(1, page);
+                    var persons = await personService.GetAllPersonsPagination(page);
+                    if (persons.Item3.Count < 1)
+                    {
+                        return Results.NoContent();
+                    }
+                    return Results.Ok(persons.Item3);
+                }
+                catch (Exception ex) { 
+                    Console.WriteLine(ex);
+                    return Results.Problem($"An unexpected error occurred: {ex.Message}", statusCode: 500);
+                }
             });
 
             app.MapGet("/person/{id}", async (PersonService personService, int id) =>
@@ -34,36 +46,38 @@ namespace ResumeAPI.Models
                 {
                     return Results.BadRequest(validationResult.Select(v => v.ErrorMessage));
                 }
-                var person = new Person
-                {
-                    Name = personDTO.Name,
-                    Description = personDTO.Description,
-                    Phone = personDTO.Phone,
-                    Email = personDTO.Email
-                };
 
                 try 
                 { 
-                    await personService.CreatePerson(personDTO); 
-                    return Results.Created($"/person/{person.ID}", person);
+                    var person = await personService.CreatePerson(personDTO); 
+                    return Results.Created($"/person/{person.ID}", personDTO);
                 }
-                catch (InvalidOperationException err)
+                catch (InvalidOperationException ex)
                 {
-                    return Results.BadRequest(err);
+                    return Results.Problem($"An unexpected error occurred: {ex.Message}", statusCode: 500);
                 }
             });
 
 
             app.MapPut("/person/{id}", async (PersonService personService, int id, PersonCreateDTO personDTO) =>
             {
+                var validationContext = new ValidationContext(personDTO);
+                var validationResult = new List<ValidationResult>();
+
+                bool isValid = Validator.TryValidateObject(personDTO, validationContext, validationResult, true);
+
+                if (!isValid)
+                {
+                    return Results.BadRequest(validationResult.Select(v => v.ErrorMessage));
+                }
                 try
                 {
                     await personService.PutPerson(personDTO); 
                     return Results.Created($"/person/{id}", personDTO);
                 }
-                catch (InvalidOperationException err)
+                catch (InvalidOperationException ex)
                 {
-                    return Results.BadRequest(err);
+                    return Results.Problem($"An unexpected error occurred: {ex.Message}", statusCode: 500);
                 }
             });
 
@@ -71,12 +85,16 @@ namespace ResumeAPI.Models
             {
                 try
                 {
-                    var personDTO = await personService.DeletePerson(id); 
-                    return Results.Ok(personDTO);
+                    int rowsAffected = await personService.DeletePerson(id); 
+                    if(rowsAffected == 0)
+                    {
+                        return Results.NotFound("Person not found");
+                    }
+                    return Results.Ok($"A person with id {id} was deleted.");
                 }
-                catch (InvalidOperationException err)
+                catch (Exception ex)
                 {
-                    return Results.BadRequest(err);
+                    return Results.Problem($"An unexpected error occurred: {ex.Message}", statusCode: 500);
                 }
             });
         }

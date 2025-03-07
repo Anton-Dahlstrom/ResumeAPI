@@ -4,7 +4,7 @@ namespace ResumeAPI.Models
 {
 	public class PersonCreateDTO
 	{
-		[Length(5, 200)]
+		[Length(2, 200)]
 		public string Name { get; set; }
 
 		[Length(0, 2000)]
