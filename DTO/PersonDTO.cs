@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ResumeAPI.DTO
 {
-    public class PersonGetDTO
+    public class PersonDTO
     {
         [Length(2, 200)]
         public string Name { get; set; }
