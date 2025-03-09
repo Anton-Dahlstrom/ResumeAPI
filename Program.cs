@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using ResumeAPI.Data;
 using ResumeAPI.Endpoints;
-using ResumeAPI.Models;
 using ResumeAPI.Services;
 
 namespace ResumeAPI
@@ -19,7 +18,6 @@ namespace ResumeAPI
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 
-			//builder.Services.AddSwaggerGen();
 			builder.Services.AddSwaggerGen(options =>
 			{
 				options.MapType<DateOnly>(() => new OpenApiSchema
@@ -38,6 +36,8 @@ namespace ResumeAPI
 			builder.Services.AddScoped<EducationService>();
 			builder.Services.AddScoped<JobService>();
 
+			builder.Services.AddHttpClient();
+
 			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
@@ -54,6 +54,7 @@ namespace ResumeAPI
 			PersonEndpoints.RegisterEndpoints(app);
 			EducationEndpoints.RegisterEndpoints(app);
 			JobEndpoints.RegisterEndpoints(app);
+			GithubEndpoints.RegisterEndpoints(app);
 
 			app.Run();
 		}
